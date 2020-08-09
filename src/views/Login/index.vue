@@ -12,11 +12,11 @@
         </el-form-item>
         <el-form-item prop="password" class="form-item">
           <label>密码</label>
-          <el-input type="text" v-model="ruleForm.password" autocomplete="off" minlength="6" maxlength="20"></el-input>
+          <el-input type="password" v-model="ruleForm.password" autocomplete="off" minlength="6" maxlength="20"></el-input>
         </el-form-item>
         <el-form-item prop="passwords" class="form-item" v-if="this.model === 'register'" >
           <label>重复密码</label>
-          <el-input type="text" v-model="ruleForm.passwords" autocomplete="off" minlength="6" maxlength="20"></el-input>
+          <el-input type="password" v-model="ruleForm.passwords" autocomplete="off" minlength="6" maxlength="20"></el-input>
         </el-form-item>
         <el-form-item prop="code" class="form-item">
           <label>验证码</label>
@@ -95,8 +95,8 @@ export default {
       loginBtnStatus: true,
       timer: null,
       ruleForm: {
-        username: '',
-        password: '',
+        username: '1295749337@qq.com',
+        password: 'Abc123456',
         passwords: '',
         code: ''
       },
@@ -146,7 +146,7 @@ export default {
     /**
      * 清除计时器
      */
-    claerTimer() {
+    clearTimer() {
       clearInterval(this.timer);
       this.codeBtnStatus.status = false;
       this.codeBtnStatus.text = "发送验证码";
@@ -194,10 +194,15 @@ export default {
      * 登录
      */
     login(data) {
-      login(data).then(res => {
-        this.$message.success("Submited !");
-        this.claerTimer();
-      }).catch();
+      this.$store.dispatch("login/login", data).then(res => {
+        this.$message.success("Subited !");
+        this.clearTimer();
+        this.$router.push({
+          path: "/console/index"
+        });
+      }).catch(err => {
+        console.log(`Login error: ${err}`);
+      });;  
     },
     /**
      * 注册
