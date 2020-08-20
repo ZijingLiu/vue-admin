@@ -1,0 +1,12 @@
+@mixin  label-wrapper($align, $width, $lineHeight, $marginLeft) {
+    label {
+        float: left;
+        text-align: $align;
+        line-height: $lineHeight;
+        width: $width;
+    }
+    .content-wrapper {
+        margin-left: $marginLeft;
+        height: 40px
+    }
+}

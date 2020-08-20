@@ -13,7 +13,11 @@ const mutations = {
     },
     setUsername(state, data) {
         state.username = data;
-        cookie.set("username", data)
+        cookie.set("username", data);
+    },
+    clearTokenUsername(state) {
+        state.token = "";
+        state.username = "";
     }
 };
 

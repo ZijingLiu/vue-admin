@@ -6,7 +6,7 @@
           {{ username }}
         </div>
         <div class="pull-left exit-icon">
-          <svg-icon :iconClass="`exit`" :className="`exit`"></svg-icon>
+          <svg-icon :iconClass="`exit`" :className="`exit`" @click="exit"></svg-icon>
         </div>
       </div>
   </div>
@@ -22,6 +22,11 @@ export default {
   methods: {
     toggleMenu() {
       this.$store.commit("toggleMenu");
+    },
+    exit() {
+      this.$router.push({
+        path: "/login"
+      });
     }
   }
 }
