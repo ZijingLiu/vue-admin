@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="addCategory">
-      <el-button type="danger" size="medium" @click="activateAddingFirstClass">添加一级菜单</el-button>
+      <el-button type="danger" size="medium" @click="activateFirstClassInput">添加一级菜单</el-button>
     </div>
     <div>
       <el-row :gutter="30" class="categoryList">
@@ -11,9 +11,14 @@
               <svg-icon icon-class="minus" className=""></svg-icon>
               {{firstClass.category_name}}
               <div class="button-group">
-                <el-button size="mini" type="danger" round>编辑</el-button>
+                <el-button
+                  size="mini"
+                  type="danger"
+                  round
+                  @click="activateEditFirstCategory(firstClass)"
+                >编辑</el-button>
                 <el-button size="mini" type="success" round>添加子级</el-button>
-                <el-button size="mini" round>删除</el-button>
+                <el-button size="mini" round @click="activateDeleteWarning(firstClass.id)">删除</el-button>
               </div>
             </h4>
             <ul v-if="firstClass.children">
@@ -37,18 +42,16 @@
               ref="ruleForm"
               :model="form"
             >
-              <el-form-item label="一级分类名称：" v-if="showFirstClassInput">
-                <el-input v-model="form.firstClass"></el-input>
+              <el-form-item label="一级分类名称：" v-if="firstClassInputShown">
+                <el-input v-model="form.firstClass" :disabled="firstCategoryDisable"></el-input>
               </el-form-item>
               <div class="gap"></div>
-              <el-form-item label="二级分类名称：" v-if="showSecondClassInput">
-                <el-input v-model="form.secondClass"></el-input>
-              </el-form-item>
-              <el-form-item>
-                <el-button type="danger" @click="submit" :loading="submit_loading">确定</el-button>
+              <el-form-item label="二级分类名称：" v-if="secondClassInputShown">
+                <el-input v-model="form.secondClass" :disabled="secondCategoryDisable"></el-input>
               </el-form-item>
             </el-form>
             <div class="gap"></div>
+            <el-button type="danger" @click="submit()" :disabled="submitDisable">确定</el-button>
           </div>
         </el-col>
       </el-row>
@@ -57,15 +60,26 @@
 </template>
 
 <script>
-import { addFirstClass, getCategoryList } from "@/api/info.js";
+import {
+  addFirstClassReq,
+  getCategoryListReq,
+  deleteFirstCategoryReq,
+  editFirstCategoryReq
+} from "@/api/info.js";
+import { warningBox } from "@/utils/global.js";
 
 export default {
   data() {
     return {
       labelPosition: "right",
-      showFirstClassInput: true,
-      showSecondClassInput: true,
-      submit_loading: false,
+      firstClassInputShown: true,
+      secondClassInputShown: true,
+      firstCategoryDisable: true,
+      secondCategoryDisable: true,
+      submitDisable: true,
+      submitType: "",
+      categoryId: "",
+      categoryName: "",
       form: {
         firstClass: "",
         secondClass: ""
@@ -76,34 +90,88 @@ export default {
     };
   },
   methods: {
-    activateAddingFirstClass() {
-      this.showSecondClassInput = false;
+    /**
+     * 激活一级分类输入框
+     */
+    activateFirstClassInput() {
+      this.submitType = "addFirstCategory";
+      this.secondClassInputShown = false;
+      this.firstCategoryDisable = false;
+      this.submitDisable = false;
     },
+    /**
+     * 提交
+     */
     submit() {
-      this.submit_loading = true;
-      let categoryName = {
-        categoryName: this.form.firstClass
-      };
-      this.$refs["ruleForm"].resetFields();
-      addFirstClass(categoryName)
-        .then(res => {
-          let statusCode = res.data.resCode;
-          let newCategory = res.data.data.category_name;
-          if (statusCode === 0) {
-            this.category.item.push({ category_name: newCategory });
-          }
-          this.submit_loading = false;
+      if (this.submitType == "addFirstCategory") {
+        let categoryName = {
+          categoryName: this.form.firstClass
+        };
+        addFirstClassReq(categoryName)
+          .then(res => {
+            let statusCode = res.data.resCode;
+            let newCategory = res.data.data.category_name;
+            if (statusCode === 0) {
+              this.category.item.push({ category_name: newCategory });
+            }
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      }
+      if (this.submitType == "addSecondCategory") {
+      }
+      
+      if (this.submitType == "editFirstCategory") {
+        this.categoryName = this.form.firstClass;
+        editFirstCategoryReq({
+          id: this.categoryId,
+          categoryName: this.categoryName
+        }).then(res => {
+          let index = this.category.item.findIndex(item => item.id == this.categoryId);
+          this.category.item[index].category_name = res.data.data.data.categoryName;
         })
-        .catch(err => {
-          console.log(err);
-          this.submit_loading = false;
+        .catch(err => console.log(err));
+      }
+    },
+    /**
+     * 激活删除警告框
+     */
+    activateDeleteWarning(id) {
+      warningBox({
+        warning: "是否确认删除？",
+        iconType: "warning",
+        fn: this.deleteFirstCategory,
+        id: id
+      });
+    },
+    /**
+     * 删除一级分类
+     */
+    deleteFirstCategory(id) {
+      deleteFirstCategoryReq({
+        categoryId: id
+      }).then(res => {
+        let index = this.category.item.findIndex((currentItem, index) => {
+          return currentItem.id == id;
         });
+        this.category.item.splice(index, 1);
+      });
+    },
+    /**
+     * 激活编辑一级分类
+     */
+    activateEditFirstCategory(data) {
+      this.categoryId = data.id;
+      this.categoryName = data.category_name;
+      this.form.firstClass = data.category_name;
+      this.activateFirstClassInput();
+      this.submitType = "editFirstCategory";
     }
   },
   mounted() {
-    getCategoryList({})
+    getCategoryListReq({})
       .then(res => {
-        console.log(res.data.data);
         this.category.item = res.data.data;
       })
       .catch(err => console.log(err));

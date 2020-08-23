@@ -6,7 +6,7 @@
         <div class="label-wrapper category">
           <label>类型：</label>
           <div class="content-wrapper">
-            <el-select v-model="categoryValue" placeholder="请选择">
+            <el-select v-model="categorysValue" placeholder="请选择">
               <el-option
                 v-for="item in categoryOptions"
                 :key="item.value"
@@ -22,7 +22,7 @@
           <label>日期：</label>
           <div class="content-wrapper">
             <el-date-picker
-              v-model="dateValue"
+              v-model="datesValue"
               type="daterange"
               range-separator="至"
               start-placeholder="开始日期"
@@ -36,7 +36,7 @@
         <div class="label-wrapper keyword">
           <label>关键字：</label>
           <div class="content-wrapper">
-            <el-select v-model="categoryValue" placeholder="请选择" style="width: 100%">
+            <el-select v-model="categorysValue" placeholder="请选择" style="width: 100%">
               <el-option
                 v-for="item in categoryOptions"
                 :key="item.value"
@@ -48,20 +48,20 @@
         </div>
       </el-col>
       <el-col :span="3">
-        <el-input v-model="searchInput" placeholder="请输入内容"></el-input>
+        <el-input v-model="searchBoxsInput" placeholder="请输入内容"></el-input>
       </el-col>
       <el-col :span="2">
         <el-button type="danger">搜索</el-button>
       </el-col>
       <el-col :span="2">
-        <el-button type="danger" @click="dialogSwitch = true">新增</el-button>
+        <el-button type="danger" @click="dialogOpened = true">新增</el-button>
       </el-col>
     </el-row>
     <div class="gap"></div>
     <!-- 列表 -->
     <el-row>
       <el-col>
-        <el-table :data="tableData" border style="width: 100%">
+        <el-table :data="tablesData" border style="width: 100%">
           <el-table-column type="selection" width="45"></el-table-column>
           <el-table-column prop="title" label="标题" width="630"></el-table-column>
           <el-table-column prop="category" label="类型" width="130"></el-table-column>
@@ -84,20 +84,20 @@
         <el-pagination background layout="prev, pager, next" :total="1000"  class="pull-right"></el-pagination>
       </el-col>
     </el-row>
-    <infoDialog :switchValue="dialogSwitch" @close="close"></infoDialog>
+    <infoDialog :dialogOpenedValue="dialogOpened" @close="close"></infoDialog>
   </div>
 </template>
 
 <script>
-import { deleteNews } from "@/utils/global.js";
+import { warningBox } from "@/utils/global.js";
 import infoDialog from "./dialog/infoDialog";
 export default {
   data() {
     return {
-      categoryValue: "",
-      dateValue: "",
-      searchInput: "",
-      dialogSwitch: false,
+      categorysValue: "",
+      datesValue: "",
+      searchBoxsInput: "",
+      dialogOpened: false,
       categoryOptions: [
         {
           value: "选项1",
@@ -108,7 +108,7 @@ export default {
           label: "ID2"
         }
       ],
-      tableData: [
+      tablesData: [
         {
           title: "打发时间大富科技哈萨克来得及发看",
           category: "大赛的发",
@@ -141,10 +141,13 @@ export default {
   },
   methods: {
     close(val) {
-      this.dialogSwitch = val;
+      this.dialogOpened = val;
     },
     deleteSingle() {
-      deleteNews("即将删除此新闻，是否确认删除？", "warning");
+      warningBox({
+        warning: "即将删除此新闻，是否确认删除？",
+        iconType: "warning"
+      });
     }
   }
 };

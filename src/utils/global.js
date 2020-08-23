@@ -1,11 +1,12 @@
 import { MessageBox, Message } from "element-ui";
 
-export function deleteNews(warning, type) {
-    MessageBox.confirm(warning, '提示', {
+export function warningBox(param) {
+    MessageBox.confirm(param.warning, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: type
+        type: param.iconType
     }).then(() => {
+        param.fn && param.fn(param.id || "");
         Message({
             type: 'success',
             message: '删除成功!'

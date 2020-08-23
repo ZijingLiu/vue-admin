@@ -17,7 +17,6 @@
             v-for=" (subItem) in item.children"
             :key="subItem.id"
             :index="subItem.path"
-            @click="test(subItem.path)"
           >{{ subItem.meta.name }}</el-menu-item>
         </el-submenu>
       </template>
@@ -34,10 +33,6 @@ export default {
     };
   },
   methods: {
-    test(data) {
-      console.log("+++++++++++++++");
-      console.log(data);
-    }
   },
 };
 </script>

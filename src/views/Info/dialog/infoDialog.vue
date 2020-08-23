@@ -2,7 +2,7 @@
   <div>
     <el-dialog
       title="提示"
-      :visible.sync="dialogSwitch"
+      :visible.sync="dialogOpened"
       width="30%"
       :modal-append-to-body="false"
       @close="close()"
@@ -33,7 +33,7 @@
 export default {
   data() {
     return {
-      dialogSwitch: false,
+      dialogOpened: false,
       form: {
           category: '',
           desc: '',
@@ -43,7 +43,7 @@ export default {
     };
   },
   props: {
-    switchValue: {
+    dialogOpenedValue: {
       type: Boolean,
       require: true,
       default: false
@@ -51,13 +51,13 @@ export default {
   },
   methods: {
     close() {
-      this.dialogSwitch = false;
+      this.dialogOpened = false;
       this.$emit("close", false);
     }
   },
   watch: {
-    switchValue: function(val) {
-      this.dialogSwitch = val;
+    dialogOpenedValue: function(val) {
+      this.dialogOpened = val;
     }
   }
 };
